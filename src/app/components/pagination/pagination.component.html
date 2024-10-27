@@ -1,0 +1,14 @@
+<!-- Pagination Controls -->
+<nav aria-label="Todo pagination">
+    <ul class="pagination justify-content-center">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+            <button class="page-link" (click)="previousPage()">Previous</button>
+        </li>
+        <li class="page-item">
+            <span class="page-link">Page {{ currentPage }}</span>
+        </li>
+        <li class="page-item" [class.disabled]="totalItems < itemsPerPage">
+            <button class="page-link" (click)="nextPage()">Next</button>
+        </li>
+    </ul>
+</nav>

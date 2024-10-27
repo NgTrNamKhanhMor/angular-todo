@@ -1,0 +1,25 @@
+<div class="form-card p-3 bg-white rounded shadow my-2">
+    <div class="d-flex flex-column">
+        <form (ngSubmit)="onSubmit()" #myForm="ngForm">
+            <!-- Task Name Input -->
+            <input type="text" class="form-control mb-2" placeholder="Add a new task" name="name" ngModel required
+                #taskName="ngModel" />
+            <div>
+                <small *ngIf="taskName.invalid && taskName.touched">Name is required</small>
+            </div>
+
+            <!-- Start Date Input -->
+            <input type="date" class="form-control mb-2" placeholder="Start Date" name="date" ngModel required
+                #startDate="ngModel" />
+            <div>
+                <small *ngIf="startDate.invalid && startDate.touched">Date is required</small>
+            </div>
+
+            <!-- Submit Button -->
+            <button class="btn btn-primary w-100" type="submit" [disabled]="loading">
+                <span *ngIf="!loading">Save changes</span>
+                <span *ngIf="loading">Loading...</span>
+            </button>
+        </form>
+    </div>
+</div>
