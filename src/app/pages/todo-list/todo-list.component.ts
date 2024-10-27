@@ -75,7 +75,7 @@ export class TodoListComponent {
     this.todoService.addTodo(newTodo).subscribe({
       next: () => {
         this.fetchTodos();
-        this.toggleForm();
+        this.closeForm();
       },
       error: (err) => {
         console.error('Failed to add todo', err);
@@ -87,7 +87,7 @@ export class TodoListComponent {
     this.todoService.updateTodo(updatedTodo).subscribe({
       next: () => {
         this.fetchTodos();
-        this.toggleForm();
+        this.closeForm();
       },
       error: (err) => {
         console.error('Failed to update todo', err);
@@ -173,14 +173,17 @@ export class TodoListComponent {
     this.applyFilters();
   }
 
-  toggleForm() {
-    this.showForm = !this.showForm;
-    this.currentTodo = null;
+  openForm() {
+    this.showForm = true;
+  }
+
+  closeForm() {
+    this.showForm = false;
   }
 
   editTodo(index: number) {
     this.currentTodo = this.todos[index];
-    this.showForm = true;
+    this.openForm()
   }
 
   cancelForm() {

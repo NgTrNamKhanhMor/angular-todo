@@ -37,6 +37,13 @@ export class TodoFormComponent {
     this.populateForm();
   }
 
+  closeModal() {
+    const modalElement = document.getElementById('taskModal');
+    if (modalElement) {
+      modalElement.classList.remove('show');
+      modalElement.style.display = 'none';
+    }
+  }
   onSubmit() {
     if (this.form.valid) {
       this.loading = true; 

@@ -44,8 +44,8 @@
                             {{ todo.date | date:'dd/MM' }}
                         </span>
                     </div>
-                    <button class="btn btn-danger btn-sm" (click)="deleteTodo(i)" aria-label="Delete Todo">
-                        X
+                    <button class="btn btn-danger btn-sm outline" (click)="deleteTodo(i)" aria-label="Delete Todo">
+                        <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
             </li>
@@ -54,16 +54,17 @@
         <app-pagination [totalItems]="this.filteredTodos.length"></app-pagination>
 
         <!-- Popup Form -->
-        <div class="backdrop" *ngIf="showForm" (click)="cancelForm()"></div>
         <div class="form-container" *ngIf="showForm">
-            <app-todo-form [currentTodo]="currentTodo" 
-                    (addTodoEvent)="addTodo($event)"
-                    (editTodoEvent)="updateTodo($event)" 
-                    (cancelEvent)="cancelForm()"></app-todo-form>
+            <app-todo-form 
+                [currentTodo]="currentTodo" 
+                (addTodoEvent)="addTodo($event)"
+                (editTodoEvent)="updateTodo($event)" 
+                (cancelEvent)="cancelForm()">
+            </app-todo-form>
         </div>
 
         <button class="btn btn-success position-absolute rounded-pill" style="bottom: 20px; left: 50%; transform: translateX(-50%); 
-                    width: 20%; text-align: center; padding-left: 20px;" (click)="toggleForm()">
+                    width: 20%; text-align: center; padding-left: 20px;" (click)="openForm()">
             Create a new task
         </button>
 
