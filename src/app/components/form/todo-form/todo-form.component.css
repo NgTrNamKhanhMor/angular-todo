@@ -1,0 +1,9 @@
+.alert {
+    color: red;
+    font-size: 0.9em;
+    padding: 5px;
+}
+
+.input-error {
+    border-color: red;
+}

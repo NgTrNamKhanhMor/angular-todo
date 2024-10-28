@@ -1,14 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild, HostListener } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { PaginationComponent } from '../../components/pagination/pagination.component';
-import { ConfirmComponent } from '../../components/popup/confirm/confirm.component';
-import { Todo } from '../../models/todo';
-import { DEFAULT_CURRENT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '../../constants';
-import { TodoService } from '../../services/todo/todo.service';
-import { TodoFormComponent } from '../../components/form/todo-form/todo-form.component';
+import { TodoFormComponent } from '@components/form/todo-form/todo-form.component';
+import { PaginationComponent } from '@components/pagination/pagination.component';
+import { ConfirmComponent } from '@components/popup/confirm/confirm.component';
+import { DEFAULT_CURRENT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '@constants/index';
+import { Todo } from '@models/todo';
+import { User } from '@models/user';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { AuthService } from '@services/auth/auth.service';
+import { TodoService } from '@services/todo/todo.service';
 
 @Component({
   selector: 'app-todo',
@@ -25,24 +28,25 @@ import { TodoFormComponent } from '../../components/form/todo-form/todo-form.com
 })
 export class TodoListComponent {
   todos: Todo[] = [];
+  currentUser: User | null = null;
   filteredTodos: Todo[] = [];
   paginatedTodos: Todo[] = [];
   today: Date = new Date();
-  showForm: boolean = false;
   currentTodo: Todo | null = null;
   searchTerm: string = '';
   startDateFilter: string = '';
   private routeSubscription!: Subscription;
-  showConfirmDelete: boolean = false;
   todoToDelete: Todo | null = null;
   currentPage: number = DEFAULT_CURRENT_PAGE;
+  loading: boolean = false;
 
+  private modalService = inject(NgbModal);
   constructor(
+    private authService: AuthService,
     private todoService: TodoService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
-
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
@@ -51,6 +55,7 @@ export class TodoListComponent {
       this.currentPage = params['page'] || DEFAULT_CURRENT_PAGE;
       this.fetchTodos();
     });
+    this.currentUser = this.authService.getCurrentUser();
   }
 
   ngOnDestroy() {
@@ -60,10 +65,14 @@ export class TodoListComponent {
   }
 
   fetchTodos() {
+    this.loading = true;
     this.todoService.getTodos().subscribe({
       next: (data: Todo[]) => {
-        this.todos = data;
+        this.todos = data.filter(
+          (todo) => todo.userId === Number(this.currentUser!.id)
+        );
         this.applyFilters();
+        this.loading = false;
       },
       error: (err) => {
         console.error('Failed to fetch todos', err);
@@ -75,7 +84,6 @@ export class TodoListComponent {
     this.todoService.addTodo(newTodo).subscribe({
       next: () => {
         this.fetchTodos();
-        this.closeForm();
       },
       error: (err) => {
         console.error('Failed to add todo', err);
@@ -87,7 +95,6 @@ export class TodoListComponent {
     this.todoService.updateTodo(updatedTodo).subscribe({
       next: () => {
         this.fetchTodos();
-        this.closeForm();
       },
       error: (err) => {
         console.error('Failed to update todo', err);
@@ -97,7 +104,7 @@ export class TodoListComponent {
 
   deleteTodo(i: number) {
     this.todoToDelete = this.filteredTodos[i];
-    this.showConfirmDelete = true;
+    this.openDelete();
   }
 
   confirmDelete() {
@@ -106,18 +113,13 @@ export class TodoListComponent {
         next: () => {
           this.fetchTodos();
           this.todoToDelete = null;
-          this.showConfirmDelete = false;
+          this.cancelDelete();
         },
         error: (err) => {
           console.error('Failed to delete todo', err);
         },
       });
     }
-  }
-
-  cancelDelete() {
-    this.showConfirmDelete = false;
-    this.todoToDelete = null;
   }
 
   toggleComplete(todo: Todo) {
@@ -172,24 +174,55 @@ export class TodoListComponent {
     this.startDateFilter = '';
     this.applyFilters();
   }
+  editTodo(id: string) {
+    this.currentTodo = this.todos.find((todo) => todo.id === id) || null;
+
+    if (this.currentTodo) {
+      this.openForm();
+    } else {
+      console.error(`Todo with id ${id} not found`);
+    }
+  }
 
   openForm() {
-    this.showForm = true;
-  }
+    const modalRef = this.modalService.open(TodoFormComponent);
+    modalRef.componentInstance.currentTodo = this.currentTodo;
 
-  closeForm() {
-    this.showForm = false;
-  }
+    modalRef.componentInstance.addTodoEvent.subscribe((todo: Todo) => {
+      this.addTodo(todo);
+    });
 
-  editTodo(index: number) {
-    this.currentTodo = this.todos[index];
-    this.openForm()
+    modalRef.componentInstance.editTodoEvent.subscribe((todo: Todo) => {
+      this.updateTodo(todo);
+    });
+
+    modalRef.componentInstance.cancelEvent.subscribe(() => {
+      this.cancelForm();
+    });
   }
 
   cancelForm() {
-    this.showForm = false;
     this.currentTodo = null;
   }
 
-  
+  openDelete() {
+    const modalRef = this.modalService.open(ConfirmComponent);
+    modalRef.componentInstance.todoName = this.todoToDelete?.name;
+
+    modalRef.componentInstance.confirmDelete.subscribe(() => {
+      this.confirmDelete();
+    });
+
+    modalRef.componentInstance.cancelDelete.subscribe(() => {
+      this.cancelDelete();
+    });
+  }
+
+  cancelDelete() {
+    this.todoToDelete = null;
+  }
+
+  logout() {
+    this.authService.logout();
+  }
 }

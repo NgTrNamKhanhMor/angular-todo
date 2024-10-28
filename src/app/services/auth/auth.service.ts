@@ -3,17 +3,18 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { User } from '../../models/user';
+import { User } from '@models/user';
+import { environment } from 'environments/environments.prod';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'https://66d963034ad2f6b8ed546b61.mockapi.io/api/users';
-  private currentUser: User | null = null; 
+  private apiUrl = `${environment.apiUrl}/users`;
+  private currentUser: User | null = null;
 
   constructor(private http: HttpClient, private router: Router) {
-    this.loadUserFromLocalStorage(); // Load user on service initialization
+    this.loadUserFromLocalStorage(); 
   }
 
   private loadUserFromLocalStorage() {
@@ -27,19 +28,21 @@ export class AuthService {
 
   login(email: string, password: string): Observable<User | null> {
     return this.http.get<User[]>(this.apiUrl).pipe(
-      map(users => {
-        const user = users.find(u => u.email === email && u.password === password);
+      map((users) => {
+        const user = users.find(
+          (u) => u.email === email && u.password === password
+        );
         if (user) {
           this.currentUser = user;
           if (typeof localStorage !== 'undefined') {
-            localStorage.setItem('currentUser', JSON.stringify(user)); // Save user to local storage
+            localStorage.setItem('currentUser', JSON.stringify(user)); 
           }
         }
         return user || null;
       }),
-      catchError(error => {
+      catchError((error) => {
         console.error('Login error:', error);
-        return of(null); 
+        return of(null);
       })
     );
   }
@@ -51,7 +54,7 @@ export class AuthService {
   logout() {
     this.currentUser = null;
     if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem('currentUser'); // Remove user from local storage
+      localStorage.removeItem('currentUser'); 
     }
     this.router.navigate(['/login']);
   }

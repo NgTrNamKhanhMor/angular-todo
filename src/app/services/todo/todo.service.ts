@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Todo } from '@models/todo';
+import { environment } from 'environments/environments.prod';
 import { Observable } from 'rxjs';
-import { Todo } from '../../models/todo';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TodoService {
-  private apiUrl = 'https://66d963034ad2f6b8ed546b61.mockapi.io/api/todo';
+  private apiUrl = `${environment.apiUrl}/todo`;
 
   constructor(private http: HttpClient) {}
 
@@ -20,14 +21,14 @@ export class TodoService {
   }
 
   updateTodo(updatedTodo: Todo): Observable<Todo> {
-    return this.http.put<Todo>(`${this.apiUrl}/${updatedTodo.id}`, updatedTodo); 
+    return this.http.put<Todo>(`${this.apiUrl}/${updatedTodo.id}`, updatedTodo);
   }
 
   deleteTodo(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`); 
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
   toggleComplete(id: string, completed: boolean): Observable<Todo> {
-    return this.http.put<Todo>(`${this.apiUrl}/${id}`, { completed }); 
+    return this.http.put<Todo>(`${this.apiUrl}/${id}`, { completed });
   }
 }

@@ -1,23 +1,33 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { AuthService } from '../../../services/auth/auth.service';
-import { Todo } from '../../../models/todo';
 import { CommonModule } from '@angular/common';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { AuthService } from '@services/auth/auth.service';
+import { Todo } from '@models/todo';
 
 @Component({
   selector: 'app-todo-form',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './todo-form.component.html',
-  styleUrl: './todo-form.component.css'
+  styleUrl: './todo-form.component.css',
 })
 export class TodoFormComponent {
   id: string = '';
   completed: boolean = false;
   currentUserId: number = 0;
-  loading: boolean = false;  
-  @ViewChild('myForm') form!: NgForm;
+  loading: boolean = false;
+  submitted = false;
+  activeModal = inject(NgbActiveModal);
 
+  @ViewChild('myForm') form!: NgForm;
+  @Input() currentTodo: Todo | null = null;
+  @Output() addTodoEvent = new EventEmitter<Todo>();
+  @Output() editTodoEvent = new EventEmitter<Todo>();
+  @Output() cancelEvent = new EventEmitter<void>();
+
+
+  
   constructor(private authService: AuthService) {}
 
   ngOnInit() {
@@ -25,28 +35,19 @@ export class TodoFormComponent {
     if (user) {
       this.currentUserId = Number(user.id);
     }
+    if (this.currentTodo) {
+      this.populateForm();
+    }
   }
-
-  @Input() currentTodo: Todo | null = null;
-  @Output() addTodoEvent = new EventEmitter<Todo>();
-  @Output() editTodoEvent = new EventEmitter<Todo>();
-  @Output() cancelEvent = new EventEmitter<void>();
 
   ngOnChanges() {
     console.log('Loading state:', this.loading);
     this.populateForm();
   }
-
-  closeModal() {
-    const modalElement = document.getElementById('taskModal');
-    if (modalElement) {
-      modalElement.classList.remove('show');
-      modalElement.style.display = 'none';
-    }
-  }
   onSubmit() {
+    this.submitted = true;
     if (this.form.valid) {
-      this.loading = true; 
+      this.loading = true;
       setTimeout(() => {
         if (this.currentTodo) {
           this.editTodo();
@@ -54,12 +55,14 @@ export class TodoFormComponent {
           this.addTodo();
         }
         this.loading = false;
-      }, 1000);
+        this.cancel();
+      }, 100);
     }
   }
 
   private populateForm() {
     if (this.currentTodo) {
+      console.log(this.currentTodo)
       this.id = this.currentTodo.id;
       this.completed = this.currentTodo.completed;
       setTimeout(() => {
@@ -81,7 +84,7 @@ export class TodoFormComponent {
       completed: false,
       userId: this.currentUserId,
     });
-    this.loading = false; 
+    this.loading = false;
   }
 
   editTodo() {
@@ -92,11 +95,13 @@ export class TodoFormComponent {
       completed: this.completed,
       userId: this.currentUserId,
     });
-    this.loading = false; 
+    this.loading = false;
   }
 
   cancel() {
     this.cancelEvent.emit();
-    this.loading = false; 
+    this.activeModal.close()
+    this.submitted = false;
+    this.loading = false;
   }
 }
