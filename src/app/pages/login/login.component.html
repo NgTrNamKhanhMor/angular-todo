@@ -1,15 +1,39 @@
-<div class="login-container">
-    <h2>Login</h2>
-    <form (ngSubmit)="login()">
-        <div>
-            <label for="email">Email:</label>
-            <input type="email" id="email" [(ngModel)]="email" name="email" required />
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center">Login</h2>
+            <form (ngSubmit)="login()" #myForm="ngForm">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label>
+                    <input type="email" class="form-control mb-2" placeholder="Enter your email" name="email"
+                        [(ngModel)]="email" appEmailValidator required #email="ngModel" />
+                    <div *ngIf="email.invalid && (email.dirty || email.touched)" class="alert alert-danger">
+                        <small *ngIf="email.hasError('required')">Email is required.</small>
+                        <small *ngIf="email.hasError('emailInvalid')">Please enter a valid email address.</small>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" class="form-control mb-2" placeholder="Enter your password" name="password"
+                        [(ngModel)]="password" required #password="ngModel" />
+                    <div *ngIf="password.invalid && (password.dirty || password.touched)" class="alert alert-danger">
+                        <small *ngIf="password.hasError('required')">Password is required.</small>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
+                    <ng-container *ngIf="loading; else buttonText">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Loading...
+                    </ng-container>
+                    <ng-template #buttonText>
+                        Login
+                    </ng-template>
+                </button>
+
+                <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
+            </form>
+
         </div>
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" id="password" [(ngModel)]="password" name="password" required />
-        </div>
-        <button type="submit">Login</button>
-        <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
-    </form>
+    </div>
 </div>
