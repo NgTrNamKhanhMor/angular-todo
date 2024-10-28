@@ -68,7 +68,7 @@
                             {{ todo.date | date:'dd/MM' }}
                         </span>
                     </div>
-                    <button class="btn btn-outline-danger btn-sm" (click)="deleteTodo(i)" aria-label="Delete Todo">
+                    <button class="btn btn-outline-danger btn-sm" (click)="deleteTodo(todo.id)" aria-label="Delete Todo">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>

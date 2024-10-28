@@ -102,9 +102,13 @@ export class TodoListComponent {
     });
   }
 
-  deleteTodo(i: number) {
-    this.todoToDelete = this.filteredTodos[i];
-    this.openDelete();
+  deleteTodo(id: string) {
+    this.todoToDelete = this.todos.find((todo) => todo.id === id) || null;
+    if (this.todoToDelete) {
+      this.openDelete();
+    } else {
+      console.error(`Todo with id ${id} not found`);
+    }
   }
 
   confirmDelete() {
