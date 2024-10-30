@@ -19,6 +19,9 @@ export class PaginationComponent {
   @Input() totalItems: number = 0;
 
   constructor(private router: Router, private route: ActivatedRoute) {}
+  ngOnChanges(){
+    console.log(this.totalItems)
+  }
 
   nextPage() {
     if (this.currentPage * this.itemsPerPage < this.totalItems) {

@@ -4,10 +4,19 @@
     </button>
 
     <ng-container *ngFor="let page of getPages()">
-        <button mat-raised-button [color]="currentPage === page ? 'primary' : 'secondary'" (click)="goToPage(page)">
-            {{ page }}
-        </button>
+        <ng-container *ngIf="currentPage === page; else strokedButton">
+            <button mat-flat-button color="primary" (click)="goToPage(page)">
+                {{ page }}
+            </button>
+        </ng-container>
+        <ng-template #strokedButton>
+            <button mat-stroked-button color="secondary" (click)="goToPage(page)">
+                {{ page }}
+            </button>
+        </ng-template>
     </ng-container>
+
+
 
     <button mat-fab (click)="nextPage()" [disabled]="currentPage * itemsPerPage >= totalItems" aria-label="Next page">
         <mat-icon>chevron_right</mat-icon>

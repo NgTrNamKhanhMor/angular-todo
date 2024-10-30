@@ -68,10 +68,9 @@ export class TodoFormComponent {
   }
 
   ngOnInit() {
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      this.currentUserId = Number(user.id);
-    }
+    this.authService.getCurrentUser().subscribe((user) => {
+      this.currentUserId = user!.id;
+    });
     if (this.data.currentTodo) {
       this.populateForm();
     }

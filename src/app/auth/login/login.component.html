@@ -36,17 +36,17 @@
                         </div>
 
                         <button mat-stroked-button color="primary" class="w-100 d-flex align-items-center justify-content-center" type="submit"
-                            [disabled]="loading || loginForm.invalid">
-                            <ng-container *ngIf="loading; else buttonText">
+                            [disabled]="(loading$ | async) || loginForm.invalid">
+                            <ng-container *ngIf="loading$ | async; else buttonText">
                                 <div class="d-flex align-items-center">
                                     <mat-spinner diameter="20" class="me-2"></mat-spinner> Loading...
                                 </div>
                             </ng-container>
                             <ng-template #buttonText>Login</ng-template>
                         </button>
+                        
+                        <mat-error *ngIf="errorMessage$ | async as errorMessage" class="mt-3">{{ errorMessage }}</mat-error>
 
-
-                        <mat-error *ngIf="errorMessage" class="mt-3">{{ errorMessage }}</mat-error>
                     </form>
                 </mat-card-content>
             </mat-card>
