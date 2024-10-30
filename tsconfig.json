@@ -22,13 +22,13 @@
     "lib": ["ES2022", "dom"],
     "baseUrl": "./src", 
     "paths": {
-      "@constants/*": ["app/constants/*"],
-      "@services/*": ["app/services/*"],
-      "@components/*": ["app/components/*"],
-      "@models/*": ["app/models/*"],
-      "@guards/*": ["app/guards/*"],
-      "@pages/*": ["app/pages/*"],
-      "@directives/*": ["app/directives/*"]
+      "@constants/*": ["app/shared/constants/*"],
+      "@environments/*": ["environments/*"],
+      "@services/*": ["app/shared/services/*"],
+      "@components/*": ["app/shared/components/*"],
+      // "@types/*": ["app/shared/types/*"],
+      "@guards/*": ["app/shared/guards/*"],
+      "@directives/*": ["app/shared/directives/*"]
     }
   },
   "angularCompilerOptions": {

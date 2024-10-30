@@ -1,27 +1,39 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { TodoFormComponent } from '@components/form/todo-form/todo-form.component';
-import { PaginationComponent } from '@components/pagination/pagination.component';
-import { ConfirmComponent } from '@components/popup/confirm/confirm.component';
-import { DEFAULT_CURRENT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '@constants/index';
-import { Todo } from '@models/todo';
-import { User } from '@models/user';
-import { AuthService } from '@services/auth/auth.service';
-import { TodoService } from '@services/todo/todo.service';
-import { MatDialog } from '@angular/material/dialog';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatListModule } from '@angular/material/list'; 
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
-import { DateAdapter, MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import {
+  DateAdapter,
+  MatNativeDateModule,
+  provideNativeDateAdapter,
+} from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TodoFormComponent } from 'app/todo/components/todo-form/todo-form.component';
+import { TodoService } from 'app/todo/todo/todo.service';
+import { PaginationComponent } from 'app/shared/components/pagination/pagination.component';
+import { ConfirmComponent } from 'app/shared/components/popup/confirm/confirm.component';
+import {
+  DEFAULT_CURRENT_PAGE,
+  DEFAULT_ITEMS_PER_PAGE,
+} from 'app/shared/constants/index';
+import { Todo } from 'app/todo/types/todo';
+import { Subscription } from 'rxjs';
+import { AuthService } from 'app/auth/services/auth.service';
+import { User } from 'app/shared/types/user';
 @Component({
   selector: 'app-todo',
   standalone: true,
