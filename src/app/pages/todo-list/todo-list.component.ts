@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -9,20 +9,41 @@ import { ConfirmComponent } from '@components/popup/confirm/confirm.component';
 import { DEFAULT_CURRENT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '@constants/index';
 import { Todo } from '@models/todo';
 import { User } from '@models/user';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from '@services/auth/auth.service';
 import { TodoService } from '@services/todo/todo.service';
-
+import { MatDialog } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatListModule } from '@angular/material/list'; 
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { DateAdapter, MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 @Component({
   selector: 'app-todo',
   standalone: true,
   imports: [
-    FormsModule,
     CommonModule,
+    MatChipsModule,
+    PaginationComponent,
+    FormsModule,
     TodoFormComponent,
     ConfirmComponent,
-    PaginationComponent,
+    MatButtonModule,
+    MatInputModule,
+    MatIconModule,
+    MatCardModule,
+    MatListModule,
+    MatCheckboxModule,
+    MatProgressSpinnerModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
   ],
+  providers: [provideNativeDateAdapter()],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './todo-list.component.html',
   styleUrls: ['./todo-list.component.css'],
 })
@@ -38,15 +59,19 @@ export class TodoListComponent {
   private routeSubscription!: Subscription;
   todoToDelete: Todo | null = null;
   currentPage: number = DEFAULT_CURRENT_PAGE;
-  loading: boolean = false;
+  loading = signal<boolean>(false);
 
-  private modalService = inject(NgbModal);
+  private dialog = inject(MatDialog);
+
   constructor(
     private authService: AuthService,
     private todoService: TodoService,
     private route: ActivatedRoute,
-    private router: Router
-  ) {}
+    private router: Router,
+    private dateAdapter: DateAdapter<any>
+  ) {
+    this.dateAdapter.setLocale('en-US');
+  }
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
@@ -58,6 +83,8 @@ export class TodoListComponent {
     this.currentUser = this.authService.getCurrentUser();
   }
 
+  ngOnChanges() {}
+
   ngOnDestroy() {
     if (this.routeSubscription) {
       this.routeSubscription.unsubscribe();
@@ -65,14 +92,15 @@ export class TodoListComponent {
   }
 
   fetchTodos() {
-    this.loading = true;
+    this.loading.set(true);
     this.todoService.getTodos().subscribe({
       next: (data: Todo[]) => {
         this.todos = data.filter(
           (todo) => todo.userId === Number(this.currentUser!.id)
         );
         this.applyFilters();
-        this.loading = false;
+        this.loading.set(false);
+        console.log(this.loading);
       },
       error: (err) => {
         console.error('Failed to fetch todos', err);
@@ -117,7 +145,6 @@ export class TodoListComponent {
         next: () => {
           this.fetchTodos();
           this.todoToDelete = null;
-          this.cancelDelete();
         },
         error: (err) => {
           console.error('Failed to delete todo', err);
@@ -170,6 +197,14 @@ export class TodoListComponent {
     });
   }
 
+  onDateChange(event: any) {
+    const selectedDate = event.value;
+    this.startDateFilter = selectedDate
+      ? selectedDate.toISOString().split('T')[0]
+      : '';
+    this.applyFilters();
+  }
+
   applySearchFilters() {
     this.applyFilters();
   }
@@ -182,48 +217,28 @@ export class TodoListComponent {
     this.currentTodo = this.todos.find((todo) => todo.id === id) || null;
 
     if (this.currentTodo) {
-      this.openForm();
+      this.openForm(this.currentTodo);
     } else {
       console.error(`Todo with id ${id} not found`);
     }
   }
 
-  openForm() {
-    const modalRef = this.modalService.open(TodoFormComponent);
-    modalRef.componentInstance.currentTodo = this.currentTodo;
-
-    modalRef.componentInstance.addTodoEvent.subscribe((todo: Todo) => {
-      this.addTodo(todo);
-    });
-
-    modalRef.componentInstance.editTodoEvent.subscribe((todo: Todo) => {
-      this.updateTodo(todo);
-    });
-
-    modalRef.componentInstance.cancelEvent.subscribe(() => {
-      this.cancelForm();
+  openForm(currentTodo?: Todo) {
+    this.dialog.open(TodoFormComponent, {
+      data: {
+        currentTodo,
+        addTodoEvent: (todo: Todo) => this.addTodo(todo),
+        editTodoEvent: (todo: Todo) => this.updateTodo(todo),
+      },
     });
   }
-
-  cancelForm() {
-    this.currentTodo = null;
-  }
-
   openDelete() {
-    const modalRef = this.modalService.open(ConfirmComponent);
-    modalRef.componentInstance.todoName = this.todoToDelete?.name;
-
-    modalRef.componentInstance.confirmDelete.subscribe(() => {
-      this.confirmDelete();
+    this.dialog.open(ConfirmComponent, {
+      data: {
+        todoName: this.todoToDelete?.name,
+        confirmDelete: () => this.confirmDelete(),
+      },
     });
-
-    modalRef.componentInstance.cancelDelete.subscribe(() => {
-      this.cancelDelete();
-    });
-  }
-
-  cancelDelete() {
-    this.todoToDelete = null;
   }
 
   logout() {

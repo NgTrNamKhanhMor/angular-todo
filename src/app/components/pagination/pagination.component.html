@@ -1,21 +1,15 @@
-<nav aria-label="Page navigation example">
-    <ul class="pagination justify-content-center">
-        <li class="page-item" [class.disabled]="currentPage === 1">
-            <button class="page-link" (click)="previousPage()" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-                <span class="sr-only">Previous</span>
-            </button>
-        </li>
+<nav aria-label="Page navigation example" class="mat-pagination-nav">
+    <button mat-fab (click)="previousPage()" [disabled]="currentPage === 1" aria-label="Previous page">
+        <mat-icon>chevron_left</mat-icon>
+    </button>
 
-        <li class="page-item" *ngFor="let page of getPages()" [class.active]="currentPage === page">
-            <button class="page-link" (click)="goToPage(page)">{{ page }}</button>
-        </li>
+    <ng-container *ngFor="let page of getPages()">
+        <button mat-raised-button [color]="currentPage === page ? 'primary' : 'secondary'" (click)="goToPage(page)">
+            {{ page }}
+        </button>
+    </ng-container>
 
-        <li class="page-item" [class.disabled]="totalItems < itemsPerPage">
-            <button class="page-link" (click)="nextPage()" aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-                <span class="sr-only">Next</span>
-            </button>
-        </li>
-    </ul>
+    <button mat-fab (click)="nextPage()" [disabled]="currentPage * itemsPerPage >= totalItems" aria-label="Next page">
+        <mat-icon>chevron_right</mat-icon>
+    </button>
 </nav>

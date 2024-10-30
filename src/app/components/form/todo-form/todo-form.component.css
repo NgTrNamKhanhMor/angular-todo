@@ -1,9 +1,21 @@
-.alert {
-    color: red;
-    font-size: 0.9em;
-    padding: 5px;
+/* Container for the entire form */
+form {
+    max-width: 400px;
+    margin: 0 auto;
+    box-sizing: border-box;
 }
 
-.input-error {
-    border-color: red;
+mat-form-field {
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.text-center {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+button {
+    margin: 0 8px;
 }

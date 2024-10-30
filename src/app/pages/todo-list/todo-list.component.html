@@ -1,5 +1,5 @@
-<div class="container-fluid bg-light">
-    <div class="container bg-light p-5 rounded" style="position: relative; height: 100vh;">
+<div class="container-fluid " color="bg-primary">
+    <div class="container p-5 rounded" style="position: relative; height: 100vh;">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="d-flex align-items-center gap-3">
                 <!-- Title Section -->
@@ -11,69 +11,71 @@
                 </div>
 
                 <!-- Square Button for Creating a New Task -->
-                <button class="btn btn-outline-primary rounded-3 d-flex align-items-center justify-content-center"
-                    style="width: 80px; height: 80px;" (click)="openForm()">
-                    <i class="fa-solid fa-plus fa-2x"></i>
+                <button mat-stroked-button (click)="openForm()" class="square-button">
+                    <mat-icon class="large-icon">add</mat-icon>
                 </button>
             </div>
 
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-start gap-2 ">
                 <!-- Search Form -->
-                <form (ngSubmit)="applySearchFilters()" class="d-flex">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Search by title" [(ngModel)]="searchTerm"
-                            name="search" />
-                    </div>
+                <form (ngSubmit)="applySearchFilters()">
+                    <mat-form-field appearance="fill" class="me-2">
+                        <mat-label>Search by title</mat-label>
+                        <input matInput [(ngModel)]="searchTerm" name="search" />
+                    </mat-form-field>
                 </form>
-
                 <!-- Date Filter with Clear Button -->
-                <div class="input-group">
-                    <input type="date" class="form-control" [(ngModel)]="startDateFilter" name="startDate"
-                        (change)="applyFilters()" />
-                    <button type="button" class="btn btn-secondary" (click)="clearDateFilter()">
-                        X
+                <mat-form-field appearance="fill" class="me-2">
+                    <mat-label>Start Date</mat-label>
+                    <input matInput [matDatepicker]="picker" [(ngModel)]="startDateFilter" (dateChange)="onDateChange($event)"
+                        placeholder="YYYY-MM-DD" />
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                    <button mat-icon-button type="button" matSuffix (click)="clearDateFilter()">
+                        <mat-icon>clear</mat-icon>
                     </button>
-                </div>
+                </mat-form-field>
 
                 <!-- Logout Button -->
-                <button class="btn btn-outline-secondary" (click)="logout()">
-                    <i class="fa fa-sign-out"></i>
-                </button>
+                <div class="d-flex flex-column align-items-start justify-content-end h-100">
+                    <button mat-fab (click)="logout()">
+                        <mat-icon>logout</mat-icon>
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- Loading Spinner -->
-        <div *ngIf="loading" class="d-flex justify-content-center my-4">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
+        <div *ngIf="loading()" class="d-flex justify-content-center my-4">
+            <mat-spinner></mat-spinner>
         </div>
 
-        <!-- Todo List -->
-        <ul *ngIf="!loading" class="list-group">
-            <li *ngFor="let todo of paginatedTodos; let i = index"
-                class="list-group-item d-flex justify-content-between align-items-center mb-2 rounded-3 p-3"
-                [class.completed]="todo.completed">
 
-                <div class="d-flex justify-content-between align-items-center gap-2">
-                    <input type="checkbox" (click)="toggleComplete(todo)" [checked]="todo.completed" class="checkbox" />
-                    <span [ngClass]="{ 'text-decoration-line-through': todo.completed, 'cursor-pointer': true }"
-                        (click)="editTodo(todo.id)">
-                        {{ todo.name }}
-                    </span>
-                </div>
-                <div class="d-flex flex-row align-items-center">
-                    <div class="me-2">
-                        <span class="badge rounded-pill bg-light text-dark">
-                            {{ todo.date | date:'dd/MM' }}
-                        </span>
-                    </div>
-                    <button class="btn btn-outline-danger btn-sm" (click)="deleteTodo(todo.id)" aria-label="Delete Todo">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </div>
-            </li>
-        </ul>
+        <mat-card *ngIf="!loading()" class="todo-container">
+            <mat-list>
+                <li *ngFor="let todo of paginatedTodos" mat-list-item>
+                    <mat-card class="todo-card">
+                        <mat-card-content class="todo-card-content">
+                            <div>
+                                <mat-checkbox (change)="toggleComplete(todo)" [checked]="todo.completed"></mat-checkbox>
+                                <span [ngClass]="{ 'text-decoration-line-through': todo.completed }"
+                                    (click)="editTodo(todo.id)" class="cursor-pointer">
+                                    {{ todo.name }}
+                                </span>
+                            </div>
+                            <div class="todo-actions">
+                                <mat-chip>{{ todo.date | date: 'shortDate' }}</mat-chip>
+                                <button mat-mini-fab (click)="deleteTodo(todo.id)" aria-label="Delete Todo">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                        </mat-card-content>
+                    </mat-card>
+                </li>
+            </mat-list>
+        </mat-card>
+
+
 
         <!-- Pagination Component -->
         <app-pagination [totalItems]="filteredTodos.length"></app-pagination>
