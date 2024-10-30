@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LoginComponent } from '@pages/login/login.component';
-import { RegisterComponent } from '@pages/register/register.component';
-import { TodoListComponent } from '@pages/todo-list/todo-list.component';
-import { AuthGuard } from '@guards/auth.guard';
+import { LoginComponent } from 'app/auth/login/login.component';
+import { RegisterComponent } from 'app/auth/register/register.component';
+import { TodoListComponent } from 'app/todo/todo-list/todo-list.component';
+import { AuthGuard } from 'app/shared/guards/auth.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },

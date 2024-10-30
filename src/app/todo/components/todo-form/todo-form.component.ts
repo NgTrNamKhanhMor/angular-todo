@@ -16,8 +16,8 @@ import {
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { Todo } from '@models/todo';
-import { AuthService } from '@services/auth/auth.service';
+import { AuthService } from 'app/auth/services/auth.service';
+import { Todo } from 'app/todo/types/todo';
 
 @Component({
   selector: 'app-todo-form',

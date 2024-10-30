@@ -1,8 +1,8 @@
-import { Component, Input } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Component, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DEFAULT_CURRENT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '@constants/index';
 
 @Component({
