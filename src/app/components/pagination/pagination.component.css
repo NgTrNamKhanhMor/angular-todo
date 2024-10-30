@@ -1,0 +1,12 @@
+.pagination {
+    margin-top: 20px;
+  }
+  
+  .pagination button {
+    margin-right: 5px;
+  }
+  
+  .pagination span {
+    padding: 0 10px;
+  }
+  

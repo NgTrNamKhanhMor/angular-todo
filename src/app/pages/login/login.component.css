@@ -1,0 +1,22 @@
+.login-container {
+  width: 300px;
+  margin: 50px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.error {
+  color: red;
+  margin-top: 10px;
+}
+
+.alert {
+  color: red;
+  font-size: 0.9em;
+  padding: 5px;
+}
+
+.input-error {
+  border-color: red;
+}
