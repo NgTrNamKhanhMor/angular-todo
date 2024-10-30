@@ -1,13 +1,10 @@
-<div class="modal-content">
-  <div class="modal-header">
-    <h5 class="modal-title">Delete Confirmation</h5>
-    <button type="button" class="btn-close" (click)="cancel()"></button>
+<mat-dialog-content class="mat-modal-content" cdkFocusInitial>
+  <h2 mat-dialog-title>Delete Confirmation</h2>
+  <div mat-dialog-content class="mat-modal-body">
+    <p>Are you sure you want to delete the task "{{ data.todoName }}"?</p>
   </div>
-  <div class="modal-body">
-    <p>Are you sure you want to delete the task "{{ todoName }}"?</p>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-danger" (click)="confirm()">Delete</button>
-    <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
-  </div>
-</div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="mat-modal-footer">
+  <button mat-raised-button (click)="confirm()">Delete</button>
+</mat-dialog-actions>

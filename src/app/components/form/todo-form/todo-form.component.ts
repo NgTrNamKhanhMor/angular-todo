@@ -1,107 +1,101 @@
-import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { AuthService } from '@services/auth/auth.service';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { Todo } from '@models/todo';
+import { AuthService } from '@services/auth/auth.service';
 
 @Component({
   selector: 'app-todo-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+  ],
+  providers: [provideNativeDateAdapter()],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './todo-form.component.html',
-  styleUrl: './todo-form.component.css',
+  styleUrls: ['./todo-form.component.css'],
 })
 export class TodoFormComponent {
-  id: string = '';
-  completed: boolean = false;
   currentUserId: number = 0;
-  loading: boolean = false;
-  submitted = false;
-  activeModal = inject(NgbActiveModal);
+  todoForm: FormGroup;
+  loading = false;
 
-  @ViewChild('myForm') form!: NgForm;
-  @Input() currentTodo: Todo | null = null;
-  @Output() addTodoEvent = new EventEmitter<Todo>();
-  @Output() editTodoEvent = new EventEmitter<Todo>();
-  @Output() cancelEvent = new EventEmitter<void>();
+  constructor(
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      currentTodo: Todo;
+      addTodoEvent: (todo: Todo) => void;
+      editTodoEvent: (todo: Todo) => void;
+    },
+    private dialogRef: MatDialogRef<TodoFormComponent>,
+    private fb: FormBuilder,
+    private authService: AuthService
+  ) {
+    this.todoForm = this.fb.group({
+      name: ['', Validators.required],
+      date: ['', Validators.required],
+    });
+  }
 
+  get name() {
+    return this.todoForm.get('name');
+  }
 
-  
-  constructor(private authService: AuthService) {}
+  get date() {
+    return this.todoForm.get('date');
+  }
 
   ngOnInit() {
     const user = this.authService.getCurrentUser();
     if (user) {
       this.currentUserId = Number(user.id);
     }
-    if (this.currentTodo) {
+    if (this.data.currentTodo) {
       this.populateForm();
     }
   }
 
-  ngOnChanges() {
-    console.log('Loading state:', this.loading);
-    this.populateForm();
-  }
   onSubmit() {
-    this.submitted = true;
-    if (this.form.valid) {
+    if (this.todoForm.valid) {
       this.loading = true;
-      setTimeout(() => {
-        if (this.currentTodo) {
-          this.editTodo();
-        } else {
-          this.addTodo();
-        }
-        this.loading = false;
-        this.cancel();
-      }, 100);
+      if (this.data.currentTodo) {
+        this.data.editTodoEvent({
+          id: this.data.currentTodo.id,
+          ...this.todoForm.value,
+        });
+      } else {
+        this.data.addTodoEvent(this.todoForm.value);
+      }
+      this.dialogRef.close();
     }
   }
 
   private populateForm() {
-    if (this.currentTodo) {
-      console.log(this.currentTodo)
-      this.id = this.currentTodo.id;
-      this.completed = this.currentTodo.completed;
-      setTimeout(() => {
-        const date = new Date(this.currentTodo!.date);
-        const formattedDate = date.toISOString().split('T')[0];
-        this.form.setValue({
-          name: this.currentTodo!.name,
-          date: formattedDate,
-        });
-      });
-    }
-  }
-
-  addTodo() {
-    this.addTodoEvent.emit({
-      id: this.id,
-      name: this.form.form.value.name.trim(),
-      date: this.form.form.value.date,
-      completed: false,
-      userId: this.currentUserId,
+    this.todoForm.patchValue({
+      name: this.data.currentTodo?.name,
+      date: this.data.currentTodo?.date,
     });
-    this.loading = false;
-  }
-
-  editTodo() {
-    this.editTodoEvent.emit({
-      id: this.id,
-      name: this.form.form.value.name.trim(),
-      date: this.form.form.value.date,
-      completed: this.completed,
-      userId: this.currentUserId,
-    });
-    this.loading = false;
-  }
-
-  cancel() {
-    this.cancelEvent.emit();
-    this.activeModal.close()
-    this.submitted = false;
-    this.loading = false;
   }
 }

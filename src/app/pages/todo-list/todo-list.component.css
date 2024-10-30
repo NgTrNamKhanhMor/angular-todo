@@ -1,3 +1,41 @@
 .cursor-pointer {
     cursor: pointer;
 }
+
+.todo-card {
+    margin: 10px 0;
+}
+
+.todo-container {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.todo-card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.todo-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.square-button {
+    width: 60px;
+    border-radius: 30% ;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.large-icon {
+    font-size: 20px;
+    margin: 0 !important;
+    /* Increase icon size */
+}
