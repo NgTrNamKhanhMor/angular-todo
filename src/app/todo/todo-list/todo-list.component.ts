@@ -22,18 +22,18 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TodoFormComponent } from 'app/todo/components/todo-form/todo-form.component';
-import { TodoService } from 'app/todo/todo/todo.service';
+import { AuthService } from 'app/auth/services/auth.service';
 import { PaginationComponent } from 'app/shared/components/pagination/pagination.component';
 import { ConfirmComponent } from 'app/shared/components/popup/confirm/confirm.component';
 import {
   DEFAULT_CURRENT_PAGE,
   DEFAULT_ITEMS_PER_PAGE,
 } from 'app/shared/constants/index';
+import { User } from 'app/shared/types/user';
+import { TodoFormComponent } from 'app/todo/components/todo-form/todo-form.component';
+import { TodoService } from 'app/todo/todo/todo.service';
 import { Todo } from 'app/todo/types/todo';
 import { Subscription } from 'rxjs';
-import { AuthService } from 'app/auth/services/auth.service';
-import { User } from 'app/shared/types/user';
 @Component({
   selector: 'app-todo',
   standalone: true,
@@ -61,19 +61,20 @@ import { User } from 'app/shared/types/user';
 })
 export class TodoListComponent {
   todos: Todo[] = [];
-  currentUser: User | null = null;
   filteredTodos: Todo[] = [];
   paginatedTodos: Todo[] = [];
   today: Date = new Date();
   currentTodo: Todo | null = null;
   searchTerm: string = '';
   startDateFilter: string = '';
-  private routeSubscription!: Subscription;
   todoToDelete: Todo | null = null;
   currentPage: number = DEFAULT_CURRENT_PAGE;
   loading = signal<boolean>(false);
+  currentUser: User | null = null;
 
   private dialog = inject(MatDialog);
+  private routeSubscription!: Subscription;
+  private userSubscription!: Subscription;
 
   constructor(
     private authService: AuthService,
@@ -86,23 +87,33 @@ export class TodoListComponent {
   }
 
   ngOnInit() {
-    this.route.queryParams.subscribe((params) => {
+    this.routeSubscription = this.route.queryParams.subscribe((params) => {
       this.searchTerm = params['searchTerm'] || '';
       this.startDateFilter = params['startDate'] || '';
       this.currentPage = params['page'] || DEFAULT_CURRENT_PAGE;
-      this.fetchTodos();
+      if (this.currentUser){
+        this.applyFilters();
+      } 
     });
-    this.currentUser = this.authService.getCurrentUser();
-  }
 
-  ngOnChanges() {}
+    this.userSubscription = this.authService
+      .getCurrentUser()
+      .subscribe((user) => {
+        this.currentUser = user;
+        if (this.currentUser) {
+          this.fetchTodos();
+        }
+      });
+  }
 
   ngOnDestroy() {
     if (this.routeSubscription) {
       this.routeSubscription.unsubscribe();
     }
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
   }
-
   fetchTodos() {
     this.loading.set(true);
     this.todoService.getTodos().subscribe({
@@ -112,7 +123,6 @@ export class TodoListComponent {
         );
         this.applyFilters();
         this.loading.set(false);
-        console.log(this.loading);
       },
       error: (err) => {
         console.error('Failed to fetch todos', err);
@@ -121,6 +131,7 @@ export class TodoListComponent {
   }
 
   addTodo(newTodo: Omit<Todo, 'id'>) {
+    newTodo.userId = this.currentUser!.id;
     this.todoService.addTodo(newTodo).subscribe({
       next: () => {
         this.fetchTodos();

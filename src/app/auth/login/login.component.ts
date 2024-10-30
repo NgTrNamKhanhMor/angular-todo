@@ -13,6 +13,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { Store } from '@ngrx/store';
+import { LoginActions } from 'app/shared/state/auth/auth.actions';
+import { Observable } from 'rxjs';
+import { selectAuthError, selectAuthSubmitting } from 'app/shared/state/auth/auth.selectors';
 
 @Component({
   selector: 'app-login',
@@ -31,41 +35,30 @@ import { AuthService } from '../services/auth.service';
 })
 export class LoginComponent {
   loginForm: FormGroup;
-  errorMessage: string = '';
-  loading = false;
+  errorMessage$: Observable<string | null>; 
+  loading$: Observable<boolean>;
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private store: Store
   ) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
     });
+
+    this.errorMessage$ = this.store.select(selectAuthError);
+    this.loading$ = this.store.select(selectAuthSubmitting);
+
   }
 
   login() {
-    this.loading = true;
-
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
-      this.authService.login(email, password).subscribe({
-        next: () => {
-          this.router.navigate(['/todo-list']);
-        },
-        error: (err) => {
-          console.error('Login failed', err);
-          this.errorMessage = 'Login failed. Please check your credentials.';
-          this.loading = false;
-        },
-        complete: () => {
-          this.loading = false;
-        },
-      });
+      this.store.dispatch(LoginActions.login({ email, password }));
     } else {
-      this.errorMessage = 'Please fill out the form correctly.';
-      this.loading = false;
+      console.error('Form is invalid');
     }
   }
 }

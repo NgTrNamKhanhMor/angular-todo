@@ -58,7 +58,7 @@
                         <mat-card-content class="todo-card-content">
                             <div>
                                 <mat-checkbox (change)="toggleComplete(todo)" [checked]="todo.completed"></mat-checkbox>
-                                <span [ngClass]="{ 'text-decoration-line-through': todo.completed }"
+                                <span
                                     (click)="editTodo(todo.id)" class="cursor-pointer">
                                     {{ todo.name }}
                                 </span>
